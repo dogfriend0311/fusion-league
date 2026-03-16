@@ -33,7 +33,7 @@ export default function OwnerLogin() {
     }}>
       <div style={{
         background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,215,0,0.2)',
+        border: '1px solid rgba(204,0,0,0.2)',
         borderRadius: '20px',
         padding: '2.5rem',
         width: '100%',
@@ -43,7 +43,7 @@ export default function OwnerLogin() {
         <h1 style={{
           fontSize: '1.5rem',
           fontWeight: '800',
-          color: '#FFD700',
+          color: '#CC0000',
           textAlign: 'center',
           marginBottom: '0.5rem',
           letterSpacing: '2px'
@@ -123,7 +123,7 @@ export default function OwnerLogin() {
               padding: '13px',
               borderRadius: '10px',
               border: 'none',
-              background: '#FFD700',
+              background: '#CC0000',
               color: '#000',
               fontWeight: '800',
               fontSize: '14px',

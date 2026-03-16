@@ -51,8 +51,8 @@ export default function TransactionsManager() {
         Transactions Manager
       </h2>
 
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
-        <h3 style={{ color: '#FFD700', fontSize: '14px', fontWeight: '700', marginBottom: '1rem' }}>Post Transaction</h3>
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(204,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
+        <h3 style={{ color: '#CC0000', fontSize: '14px', fontWeight: '700', marginBottom: '1rem' }}>Post Transaction</h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
           <div>
@@ -82,7 +82,7 @@ export default function TransactionsManager() {
 
         {message && <p style={{ color: '#00ff88', fontSize: '13px', marginBottom: '0.75rem' }}>{message}</p>}
 
-        <button onClick={handlePost} disabled={saving || !form.player_name} style={{ padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#FFD700', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer', opacity: !form.player_name ? 0.6 : 1 }}>
+        <button onClick={handlePost} disabled={saving || !form.player_name} style={{ padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#CC0000', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer', opacity: !form.player_name ? 0.6 : 1 }}>
           {saving ? 'Posting...' : 'Post Transaction'}
         </button>
       </div>

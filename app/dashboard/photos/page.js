@@ -46,8 +46,8 @@ export default function PhotosManager() {
         Home Page Photos
       </h2>
 
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
-        <h3 style={{ color: '#FFD700', fontSize: '14px', fontWeight: '700', marginBottom: '1rem' }}>Add Photo</h3>
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(204,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
+        <h3 style={{ color: '#CC0000', fontSize: '14px', fontWeight: '700', marginBottom: '1rem' }}>Add Photo</h3>
         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>
           Paste a direct image URL. You can upload images to Supabase Storage → player-photos bucket and copy the public URL.
         </p>
@@ -60,7 +60,7 @@ export default function PhotosManager() {
             <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>ORDER</label>
             <input type="number" value={order} onChange={e => setOrder(Number(e.target.value))} style={{ ...inputStyle, width: '80px' }} />
           </div>
-          <button onClick={handleAdd} disabled={saving || !url} style={{ padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#FFD700', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer', opacity: !url ? 0.6 : 1 }}>
+          <button onClick={handleAdd} disabled={saving || !url} style={{ padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#CC0000', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer', opacity: !url ? 0.6 : 1 }}>
             Add Photo
           </button>
         </div>

@@ -70,7 +70,7 @@ export default function TransactionsPage() {
           <h1 style={{
             fontSize: '2.5rem',
             fontWeight: '800',
-            color: '#FFD700',
+            color: '#CC0000',
             letterSpacing: '2px'
           }}>
             TRANSACTIONS
@@ -212,9 +212,9 @@ export default function TransactionsPage() {
                           <Link
                             href={`/members`}
                             style={{
-                              color: '#FFD700',
+                              color: '#CC0000',
                               textDecoration: 'underline',
-                              textDecorationColor: 'rgba(255,215,0,0.3)'
+                              textDecorationColor: 'rgba(204,0,0,0.3)'
                             }}
                           >
                             {transaction.player_name}

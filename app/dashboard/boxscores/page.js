@@ -79,9 +79,9 @@ export default function BoxScoresManager() {
           onClick={() => { setForm(emptyGame); setEditingId(null); setShowForm(!showForm) }}
           style={{
             padding: '8px 20px', borderRadius: '20px',
-            border: '1px solid rgba(255,215,0,0.4)',
-            background: showForm ? 'rgba(255,100,100,0.1)' : 'rgba(255,215,0,0.1)',
-            color: showForm ? '#ff6666' : '#FFD700',
+            border: '1px solid rgba(204,0,0,0.4)',
+            background: showForm ? 'rgba(255,100,100,0.1)' : 'rgba(204,0,0,0.1)',
+            color: showForm ? '#ff6666' : '#CC0000',
             fontWeight: '600', fontSize: '13px', cursor: 'pointer'
           }}
         >
@@ -96,7 +96,7 @@ export default function BoxScoresManager() {
       )}
 
       {showForm && (
-        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(204,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
               <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>GAME ID</label>
@@ -133,7 +133,7 @@ export default function BoxScoresManager() {
             </select>
           </div>
 
-          <button onClick={handleSave} disabled={saving} style={{ marginTop: '1rem', padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#FFD700', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+          <button onClick={handleSave} disabled={saving} style={{ marginTop: '1rem', padding: '9px 24px', borderRadius: '20px', border: 'none', background: '#CC0000', color: '#000', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
             {saving ? 'Saving...' : 'Save Game'}
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function BoxScoresManager() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => handleEdit(game)} style={{ padding: '5px 14px', borderRadius: '20px', border: '1px solid rgba(255,215,0,0.3)', background: 'transparent', color: '#FFD700', fontSize: '12px', cursor: 'pointer' }}>Edit</button>
+              <button onClick={() => handleEdit(game)} style={{ padding: '5px 14px', borderRadius: '20px', border: '1px solid rgba(204,0,0,0.3)', background: 'transparent', color: '#CC0000', fontSize: '12px', cursor: 'pointer' }}>Edit</button>
               <button onClick={() => handleDelete(game.id)} style={{ padding: '5px 14px', borderRadius: '20px', border: '1px solid rgba(255,100,100,0.3)', background: 'transparent', color: '#ff6666', fontSize: '12px', cursor: 'pointer' }}>Delete</button>
             </div>
           </div>

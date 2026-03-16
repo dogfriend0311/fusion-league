@@ -125,13 +125,13 @@ export default function MembersPage() {
                 >
                   {/* Avatar */}
                   <div style={{
-                    width: '120px',
-                    height: '120px',
-                    margin: '0 auto 1rem',
-                    borderRadius: '8px',
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
                     overflow: 'hidden',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '2px solid rgba(204,0,0,0.2)'
+                    margin: '0 auto 1rem',
+                    border: '2px solid rgba(204,0,0,0.4)',
+                    background: 'rgba(255,255,255,0.1)'
                   }}>
                     {player.roblox_id ? (
                       <img

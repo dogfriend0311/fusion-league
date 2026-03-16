@@ -34,7 +34,7 @@ export default function Navbar() {
       <Link href="/" style={{
         fontSize: '20px',
         fontWeight: '700',
-        color: '#FFD700',
+        color: '#CC0000',
         letterSpacing: '1px'
       }}>
         ⚡ FUSION LEAGUE
@@ -49,8 +49,8 @@ export default function Navbar() {
             style={{
               fontSize: '14px',
               fontWeight: '500',
-              color: pathname === link.href ? '#FFD700' : 'rgba(255,255,255,0.8)',
-              borderBottom: pathname === link.href ? '2px solid #FFD700' : '2px solid transparent',
+              color: pathname === link.href ? '#CC0000' : 'rgba(255,255,255,0.8)',
+              borderBottom: pathname === link.href ? '2px solid #CC0000' : '2px solid transparent',
               paddingBottom: '2px',
               transition: 'all 0.2s'
             }}

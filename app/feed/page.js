@@ -66,7 +66,7 @@ export default function FeedPage() {
     if (text.includes('touchdown') || text.includes('td')) return '#00ff88'
     if (text.includes('interception')) return '#ff4444'
     if (text.includes('fumble')) return '#ff8800'
-    if (text.includes('field goal')) return '#FFD700'
+    if (text.includes('field goal')) return '#CC0000'
     if (text.includes('sack')) return '#ff6666'
     return 'rgba(255,255,255,0.9)'
   }
@@ -91,7 +91,7 @@ export default function FeedPage() {
           <h1 style={{
             fontSize: '2.5rem',
             fontWeight: '800',
-            color: '#FFD700',
+            color: '#CC0000',
             letterSpacing: '2px'
           }}>
             GAME FEED
@@ -117,9 +117,9 @@ export default function FeedPage() {
                 style={{
                   padding: '8px 20px',
                   borderRadius: '50px',
-                  border: '1px solid rgba(255,215,0,0.4)',
-                  background: selectedGame === game.game_id ? '#FFD700' : 'rgba(255,215,0,0.08)',
-                  color: selectedGame === game.game_id ? '#000' : '#FFD700',
+                  border: '1px solid rgba(204,0,0,0.4)',
+                  background: selectedGame === game.game_id ? '#CC0000' : 'rgba(204,0,0,0.08)',
+                  color: selectedGame === game.game_id ? '#000' : '#CC0000',
                   fontWeight: '600',
                   fontSize: '13px',
                   cursor: 'pointer',
@@ -136,7 +136,7 @@ export default function FeedPage() {
         {selectedBox && (
           <div style={{
             background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,215,0,0.2)',
+            border: '1px solid rgba(204,0,0,0.2)',
             borderRadius: '16px',
             padding: '1.5rem',
             marginBottom: '2rem',
@@ -157,12 +157,12 @@ export default function FeedPage() {
                   ? 'rgba(0,255,100,0.15)'
                   : selectedBox.status === 'final'
                   ? 'rgba(255,255,255,0.1)'
-                  : 'rgba(255,215,0,0.1)',
+                  : 'rgba(204,0,0,0.1)',
                 color: selectedBox.status === 'live'
                   ? '#00ff88'
                   : selectedBox.status === 'final'
                   ? 'rgba(255,255,255,0.6)'
-                  : '#FFD700',
+                  : '#CC0000',
                 textTransform: 'uppercase',
                 letterSpacing: '1px'
               }}>
@@ -179,7 +179,7 @@ export default function FeedPage() {
                   <th style={{ textAlign: 'center', padding: '8px 12px', color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: '12px' }}>Q2</th>
                   <th style={{ textAlign: 'center', padding: '8px 12px', color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: '12px' }}>Q3</th>
                   <th style={{ textAlign: 'center', padding: '8px 12px', color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: '12px' }}>Q4</th>
-                  <th style={{ textAlign: 'center', padding: '8px 12px', color: '#FFD700', fontWeight: '700', fontSize: '14px' }}>T</th>
+                  <th style={{ textAlign: 'center', padding: '8px 12px', color: '#CC0000', fontWeight: '700', fontSize: '14px' }}>T</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,7 +193,7 @@ export default function FeedPage() {
                     <td style={{ textAlign: 'center', padding: '10px 12px', color: 'rgba(255,255,255,0.7)' }}>{team.q2}</td>
                     <td style={{ textAlign: 'center', padding: '10px 12px', color: 'rgba(255,255,255,0.7)' }}>{team.q3}</td>
                     <td style={{ textAlign: 'center', padding: '10px 12px', color: 'rgba(255,255,255,0.7)' }}>{team.q4}</td>
-                    <td style={{ textAlign: 'center', padding: '10px 12px', fontWeight: '800', fontSize: '18px', color: '#FFD700' }}>{team.total}</td>
+                    <td style={{ textAlign: 'center', padding: '10px 12px', fontWeight: '800', fontSize: '18px', color: '#CC0000' }}>{team.total}</td>
                   </tr>
                 ))}
               </tbody>

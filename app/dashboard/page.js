@@ -90,9 +90,9 @@ export default function PlayersManager() {
           style={{
             padding: '8px 20px',
             borderRadius: '20px',
-            border: '1px solid rgba(255,215,0,0.4)',
-            background: showForm ? 'rgba(255,100,100,0.1)' : 'rgba(255,215,0,0.1)',
-            color: showForm ? '#ff6666' : '#FFD700',
+            border: '1px solid rgba(204,0,0,0.4)',
+            background: showForm ? 'rgba(255,100,100,0.1)' : 'rgba(204,0,0,0.1)',
+            color: showForm ? '#ff6666' : '#CC0000',
             fontWeight: '600',
             fontSize: '13px',
             cursor: 'pointer'
@@ -120,12 +120,12 @@ export default function PlayersManager() {
       {showForm && (
         <div style={{
           background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,215,0,0.2)',
+          border: '1px solid rgba(204,0,0,0.2)',
           borderRadius: '16px',
           padding: '1.5rem',
           marginBottom: '2rem'
         }}>
-          <h3 style={{ color: '#FFD700', marginBottom: '1.25rem', fontSize: '14px', fontWeight: '700' }}>
+          <h3 style={{ color: '#CC0000', marginBottom: '1.25rem', fontSize: '14px', fontWeight: '700' }}>
             {editingId ? 'Edit Player' : 'New Player'}
           </h3>
 
@@ -170,7 +170,7 @@ export default function PlayersManager() {
               padding: '10px 28px',
               borderRadius: '20px',
               border: 'none',
-              background: '#FFD700',
+              background: '#CC0000',
               color: '#000',
               fontWeight: '800',
               fontSize: '14px',
@@ -204,7 +204,7 @@ export default function PlayersManager() {
               {player.roblox_id && (
                 <img
                   src={`https://www.roblox.com/headshot-thumbnail/image?userId=${player.roblox_id}&width=420&height=420&format=png`}
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(255,215,0,0.3)' }}
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(204,0,0,0.3)' }}
                   onError={e => e.target.style.display = 'none'}
                 />
               )}
@@ -221,9 +221,9 @@ export default function PlayersManager() {
                 style={{
                   padding: '6px 16px',
                   borderRadius: '20px',
-                  border: '1px solid rgba(255,215,0,0.3)',
+                  border: '1px solid rgba(204,0,0,0.3)',
                   background: 'transparent',
-                  color: '#FFD700',
+                  color: '#CC0000',
                   fontSize: '12px',
                   cursor: 'pointer'
                 }}

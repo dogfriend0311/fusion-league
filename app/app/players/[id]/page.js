@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import RobloxAvatar from '../../components/RobloxAvatar'
 
 export default function PlayerPage() {
   const { id } = useParams()
@@ -23,12 +22,12 @@ export default function PlayerPage() {
 
   const fetchAll = async () => {
     const [p, ps, rs, rec, def, k, aw, ph] = await Promise.all([
-      supabase.from('players').select('*').eq('id', id).maybeSingle(),
-      supabase.from('passing_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
-      supabase.from('rushing_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
-      supabase.from('receiving_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
-      supabase.from('defensive_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
-      supabase.from('kicking_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
+      supabase.from('players').select('*').eq('id', id).single(),
+      supabase.from('passing_stats').select('*').eq('player_id', id).eq('season', season).single(),
+      supabase.from('rushing_stats').select('*').eq('player_id', id).eq('season', season).single(),
+      supabase.from('receiving_stats').select('*').eq('player_id', id).eq('season', season).single(),
+      supabase.from('defensive_stats').select('*').eq('player_id', id).eq('season', season).single(),
+      supabase.from('kicking_stats').select('*').eq('player_id', id).eq('season', season).single(),
       supabase.from('awards').select('*').eq('player_id', id).order('created_at', { ascending: false }),
       supabase.from('performance_photos').select('*').eq('player_id', id).order('created_at', { ascending: false })
     ])
@@ -42,6 +41,9 @@ export default function PlayerPage() {
     setPhotos(ph.data || [])
     setLoading(false)
   }
+
+  const getRobloxAvatar = (robloxId) =>
+    `https://www.roblox.com/headshot-thumbnail/image?userId=${robloxId}&width=420&height=420&format=png`
 
   const StatRow = ({ label, value }) => (
     <div style={{
@@ -106,14 +108,28 @@ export default function PlayerPage() {
           borderRadius: '50%',
           overflow: 'hidden',
           border: '3px solid rgba(255,215,0,0.5)',
-          flexShrink: 0
+          flexShrink: 0,
+          background: 'rgba(255,255,255,0.1)'
         }}>
-          <RobloxAvatar
-            robloxId={player.roblox_id}
-            fallbackUrl={player.photo_url}
-            name={player.name}
-            size={140}
-          />
+          {player.roblox_id ? (
+            <img
+              src={getRobloxAvatar(player.roblox_id)}
+              alt={player.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : player.photo_url ? (
+            <img
+              src={player.photo_url}
+              alt={player.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <div style={{
+              width: '100%', height: '100%',
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'center', fontSize: '48px'
+            }}>🏈</div>
+          )}
         </div>
 
         {/* Info */}
@@ -162,16 +178,11 @@ export default function PlayerPage() {
                 🎵 Player's Song
               </p>
               <iframe
-                src={player.song_url
-                  .replace('open.spotify.com/track', 'open.spotify.com/embed/track')
-                  .replace('open.spotify.com/playlist', 'open.spotify.com/embed/playlist')
-                  .replace('/embed/embed/', '/embed/')
-                }
+                src={player.song_url}
                 width="300"
                 height="80"
                 frameBorder="0"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
                 style={{ borderRadius: '8px' }}
               />
             </div>
@@ -180,7 +191,11 @@ export default function PlayerPage() {
       </div>
 
       {/* Season toggle */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        marginBottom: '1.5rem'
+      }}>
         {['current', 'career'].map(s => (
           <button
             key={s}

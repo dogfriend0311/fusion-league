@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }) {
       {/* Dashboard header */}
       <div style={{
         background: 'rgba(0,0,0,0.8)',
-        borderBottom: '1px solid rgba(255,215,0,0.2)',
+        borderBottom: '1px solid rgba(204,0,0,0.2)',
         padding: '1rem 2rem',
         display: 'flex',
         justifyContent: 'space-between',
@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }) {
         zIndex: 50,
         backdropFilter: 'blur(12px)'
       }}>
-        <h2 style={{ color: '#FFD700', fontWeight: '800', fontSize: '16px', letterSpacing: '2px' }}>
+        <h2 style={{ color: '#CC0000', fontWeight: '800', fontSize: '16px', letterSpacing: '2px' }}>
           ⚡ OWNER DASHBOARD
         </h2>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
