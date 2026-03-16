@@ -1,287 +1,274 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import Link from 'next/link'
 
-export default function FeedPage() {
+export default function FeedManager() {
   const [plays, setPlays] = useState([])
-  const [boxScores, setBoxScores] = useState([])
-  const [selectedGame, setSelectedGame] = useState('all')
-  const [loading, setLoading] = useState(true)
-  const playsRef = useRef([])
+  const [games, setGames] = useState([])
+  const [form, setForm] = useState({
+    game_id: '',
+    player_name: '',
+    play_text: '',
+    yards: '',
+    field_position: '',
+    team: ''
+  })
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    fetchData()
-    const unsub = subscribeToFeed()
-    return () => unsub()
-  }, [])
+  useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-    const [playsRes, boxRes] = await Promise.all([
-      supabase
-        .from('game_feed')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100),
-      supabase
-        .from('box_scores')
-        .select('*')
-        .order('created_at', { ascending: false })
-    ])
-    if (playsRes.data) {
-      setPlays(playsRes.data)
-      playsRef.current = playsRes.data
+    const { data: playsData, error: playsError } = await supabase
+      .from('game_feed')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    const { data: gamesData } = await supabase
+      .from('box_scores')
+      .select('game_id, home_team, away_team')
+      .order('created_at', { ascending: false })
+
+    if (playsError) setError('Error loading plays: ' + playsError.message)
+    if (playsData) setPlays(playsData)
+    if (gamesData) setGames(gamesData)
+  }
+
+  const handlePost = async () => {
+    if (!form.play_text.trim()) {
+      setError('Play description is required')
+      return
     }
-    if (boxRes.data) setBoxScores(boxRes.data)
-    setLoading(false)
+    setSaving(true)
+    setError('')
+
+    const payload = {
+      play_text: form.play_text.trim(),
+      player_name: form.player_name.trim() || null,
+      game_id: form.game_id || null,
+      yards: form.yards !== '' ? parseInt(form.yards) : null,
+      field_position: form.field_position.trim() || null,
+      team: form.team.trim() || null,
+    }
+
+    const { error: insertError } = await supabase
+      .from('game_feed')
+      .insert([payload])
+
+    if (insertError) {
+      setError('Failed to post play: ' + insertError.message)
+    } else {
+      setMessage('Play posted!')
+      setForm(prev => ({
+        ...prev,
+        player_name: '',
+        play_text: '',
+        yards: '',
+        field_position: '',
+        team: ''
+      }))
+      fetchData()
+      setTimeout(() => setMessage(''), 3000)
+    }
+    setSaving(false)
   }
 
-  const subscribeToFeed = () => {
-    const channel = supabase
-      .channel('realtime-feed')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'game_feed' },
-        () => {
-          // Re-fetch all plays when anything changes
-          fetchData()
-        }
-      )
-      .subscribe()
-    return () => supabase.removeChannel(channel)
+  const handleDelete = async (id) => {
+    const { error } = await supabase.from('game_feed').delete().eq('id', id)
+    if (error) setError('Delete failed: ' + error.message)
+    else fetchData()
   }
 
-  const getPlayIcon = (playText) => {
-    const text = playText?.toLowerCase() || ''
-    if (text.includes('touchdown') || text.includes('td')) return '🏈'
-    if (text.includes('interception')) return '🚨'
-    if (text.includes('fumble')) return '💥'
-    if (text.includes('field goal')) return '🎯'
-    if (text.includes('sack')) return '💪'
-    if (text.includes('punt')) return '👟'
-    if (text.includes('penalty')) return '🚩'
-    return '▶'
+  const inputStyle = {
+    width: '100%',
+    padding: '9px 13px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.06)',
+    color: 'white',
+    fontSize: '14px',
+    outline: 'none'
   }
-
-  const getPlayColor = (playText) => {
-    const text = playText?.toLowerCase() || ''
-    if (text.includes('touchdown') || text.includes('td')) return '#00ff88'
-    if (text.includes('interception')) return '#ff4444'
-    if (text.includes('fumble')) return '#ff8800'
-    if (text.includes('field goal')) return '#CC0000'
-    if (text.includes('sack')) return '#ff6666'
-    return 'rgba(255,255,255,0.9)'
-  }
-
-  const filteredPlays = selectedGame === 'all'
-    ? plays
-    : plays.filter(p => p.game_id === selectedGame)
-
-  const selectedBox = boxScores.find(b => b.game_id === selectedGame)
 
   return (
-    <main style={{ minHeight: '100vh', padding: '2rem' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div>
+      <h2 style={{ color: 'white', fontSize: '1.3rem', fontWeight: '700', marginBottom: '1.5rem' }}>
+        Game Feed Manager
+      </h2>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#CC0000',
-            letterSpacing: '2px'
-          }}>
-            GAME FEED
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
-            Live play-by-play updates
-          </p>
+      {error && (
+        <div style={{ padding: '10px 16px', borderRadius: '8px', background: 'rgba(255,100,100,0.1)', border: '1px solid rgba(255,100,100,0.3)', color: '#ff6666', fontSize: '13px', marginBottom: '1rem' }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {message && (
+        <div style={{ padding: '10px 16px', borderRadius: '8px', background: 'rgba(0,255,136,0.1)', border: '1px solid rgba(0,255,136,0.3)', color: '#00ff88', fontSize: '13px', marginBottom: '1rem' }}>
+          ✅ {message}
+        </div>
+      )}
+
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(204,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem' }}>
+        <h3 style={{ color: '#CC0000', fontSize: '14px', fontWeight: '700', marginBottom: '1rem' }}>
+          Post a Play
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div>
+            <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>
+              GAME (optional)
+            </label>
+            <select
+              value={form.game_id}
+              onChange={e => setForm({ ...form, game_id: e.target.value })}
+              style={inputStyle}
+            >
+              <option value="">No game selected</option>
+              {games.map(g => (
+                <option key={g.game_id} value={g.game_id}>
+                  {g.away_team} vs {g.home_team}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>
+              PLAYER NAME (optional)
+            </label>
+            <input
+              type="text"
+              value={form.player_name}
+              onChange={e => setForm({ ...form, player_name: e.target.value })}
+              placeholder="e.g. John Smith"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>
+              YARDS (optional)
+            </label>
+            <input
+              type="number"
+              value={form.yards}
+              onChange={e => setForm({ ...form, yards: e.target.value })}
+              placeholder="e.g. 12"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>
+              FIELD POSITION (optional)
+            </label>
+            <input
+              type="text"
+              value={form.field_position}
+              onChange={e => setForm({ ...form, field_position: e.target.value })}
+              placeholder="e.g. OPP 35"
+              style={inputStyle}
+            />
+          </div>
         </div>
 
-        {/* Game selector */}
-        <div style={{
-          display: 'flex',
-          gap: '0.75rem',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          marginBottom: '1.5rem'
-        }}>
-          <button
-            onClick={() => setSelectedGame('all')}
-            style={{
-              padding: '8px 20px',
-              borderRadius: '50px',
-              border: '1px solid rgba(204,0,0,0.4)',
-              background: selectedGame === 'all' ? '#CC0000' : 'rgba(204,0,0,0.08)',
-              color: selectedGame === 'all' ? '#fff' : '#CC0000',
-              fontWeight: '600',
-              fontSize: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            All Plays
-          </button>
-          {boxScores.map(game => (
-            <button
-              key={game.game_id}
-              onClick={() => setSelectedGame(game.game_id)}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '50px',
-                border: '1px solid rgba(204,0,0,0.4)',
-                background: selectedGame === game.game_id ? '#CC0000' : 'rgba(204,0,0,0.08)',
-                color: selectedGame === game.game_id ? '#fff' : '#CC0000',
-                fontWeight: '600',
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              {game.away_team} vs {game.home_team}
-            </button>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '4px' }}>
+            PLAY DESCRIPTION ✱
+          </label>
+          <textarea
+            value={form.play_text}
+            onChange={e => setForm({ ...form, play_text: e.target.value })}
+            placeholder="e.g. rushes up the middle for a TOUCHDOWN!"
+            rows={3}
+            style={{ ...inputStyle, resize: 'vertical' }}
+          />
+        </div>
+
+        <button
+          onClick={handlePost}
+          disabled={saving || !form.play_text.trim()}
+          style={{
+            padding: '10px 28px',
+            borderRadius: '20px',
+            border: 'none',
+            background: saving || !form.play_text.trim() ? 'rgba(204,0,0,0.4)' : '#CC0000',
+            color: 'white',
+            fontWeight: '800',
+            fontSize: '14px',
+            cursor: saving || !form.play_text.trim() ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s'
+          }}
+        >
+          {saving ? 'Posting...' : '📡 Post Play'}
+        </button>
+      </div>
+
+      <h3 style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: '600', marginBottom: '0.75rem', letterSpacing: '1px' }}>
+        RECENT PLAYS ({plays.length})
+      </h3>
+
+      {plays.length === 0 ? (
+        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>No plays yet.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {plays.map(play => (
+            <div key={play.id} style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '10px',
+              padding: '0.75rem 1rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: '1rem'
+            }}>
+              <div style={{ flex: 1 }}>
+                {play.player_name && (
+                  <span style={{ color: '#CC0000', fontWeight: '700', fontSize: '13px' }}>
+                    {play.player_name}{' '}
+                  </span>
+                )}
+                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>
+                  {play.play_text}
+                </span>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                  {play.yards != null && (
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+                      {play.yards > 0 ? '+' : ''}{play.yards} yds
+                    </span>
+                  )}
+                  {play.field_position && (
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+                      📍 {play.field_position}
+                    </span>
+                  )}
+                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
+                    {new Date(play.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => handleDelete(play.id)}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,100,100,0.3)',
+                  background: 'transparent',
+                  color: '#ff6666',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                Delete
+              </button>
+            </div>
           ))}
         </div>
-
-        {/* Box score */}
-        {selectedBox && (
-          <div style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(204,0,0,0.2)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            marginBottom: '2rem',
-            backdropFilter: 'blur(8px)',
-            overflowX: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: '700', color: 'white' }}>
-                {selectedBox.away_team} vs {selectedBox.home_team}
-              </h2>
-              <span style={{
-                fontSize: '11px',
-                padding: '3px 10px',
-                borderRadius: '20px',
-                fontWeight: '700',
-                background: selectedBox.status === 'live' ? 'rgba(0,255,100,0.15)' : selectedBox.status === 'final' ? 'rgba(255,255,255,0.1)' : 'rgba(204,0,0,0.1)',
-                color: selectedBox.status === 'live' ? '#00ff88' : selectedBox.status === 'final' ? 'rgba(255,255,255,0.6)' : '#CC0000',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
-                {selectedBox.status === 'live' ? '🔴 LIVE' : selectedBox.status === 'final' ? 'Final' : 'Upcoming'}
-              </span>
-            </div>
-
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-              <thead>
-                <tr>
-                  {['Team','Q1','Q2','Q3','Q4','T'].map(h => (
-                    <th key={h} style={{ textAlign: h === 'Team' ? 'left' : 'center', padding: '8px 12px', color: h === 'T' ? '#CC0000' : 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: h === 'T' ? '14px' : '12px' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: selectedBox.away_team, q1: selectedBox.away_q1, q2: selectedBox.away_q2, q3: selectedBox.away_q3, q4: selectedBox.away_q4, total: selectedBox.away_total },
-                  { name: selectedBox.home_team, q1: selectedBox.home_q1, q2: selectedBox.home_q2, q3: selectedBox.home_q3, q4: selectedBox.home_q4, total: selectedBox.home_total }
-                ].map((team, i) => (
-                  <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                    <td style={{ padding: '10px 12px', fontWeight: '700', color: 'white' }}>{team.name}</td>
-                    {[team.q1, team.q2, team.q3, team.q4].map((q, j) => (
-                      <td key={j} style={{ textAlign: 'center', padding: '10px 12px', color: 'rgba(255,255,255,0.7)' }}>{q}</td>
-                    ))}
-                    <td style={{ textAlign: 'center', padding: '10px 12px', fontWeight: '800', fontSize: '18px', color: '#CC0000' }}>{team.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Play by play */}
-        <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '16px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            padding: '1rem 1.5rem',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 8px #00ff88' }} />
-            <span style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255,255,255,0.7)', letterSpacing: '1px' }}>
-              PLAY BY PLAY
-            </span>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>
-              {filteredPlays.length} plays
-            </span>
-          </div>
-
-          {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>Loading feed...</div>
-          ) : filteredPlays.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-              No plays yet. Updates will appear here live during the game.
-            </div>
-          ) : (
-            <div>
-              {filteredPlays.map((play, index) => (
-                <div
-                  key={play.id}
-                  style={{
-                    padding: '1rem 1.5rem',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    display: 'flex',
-                    gap: '1rem',
-                    alignItems: 'flex-start',
-                    background: index === 0 ? 'rgba(204,0,0,0.03)' : 'transparent'
-                  }}
-                >
-                  <div style={{ fontSize: '18px', marginTop: '2px', flexShrink: 0 }}>
-                    {getPlayIcon(play.play_text)}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{
-                      fontSize: '14px',
-                      color: getPlayColor(play.play_text),
-                      lineHeight: '1.5',
-                      fontWeight: play.play_text?.toLowerCase().includes('touchdown') ? '700' : '400'
-                    }}>
-                      {play.player_name ? (
-                        <>
-                          <Link href="/members" style={{ color: '#CC0000', fontWeight: '700', textDecoration: 'underline', textDecorationColor: 'rgba(204,0,0,0.3)' }}>
-                            {play.player_name}
-                          </Link>
-                          {' '}{play.play_text}
-                        </>
-                      ) : play.play_text}
-                    </p>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
-                      {play.yards != null && (
-                        <span style={{ fontSize: '12px', color: play.yards > 0 ? '#00ff88' : '#ff6666', fontWeight: '600' }}>
-                          {play.yards > 0 ? '+' : ''}{play.yards} yds
-                        </span>
-                      )}
-                      {play.field_position && (
-                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>📍 {play.field_position}</span>
-                      )}
-                      {play.team && (
-                        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{play.team}</span>
-                      )}
-                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>
-                        {new Date(play.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </main>
+      )}
+    </div>
   )
 }
