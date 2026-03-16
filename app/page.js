@@ -1,173 +1,149 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
-import Link from 'next/link'
-import RobloxAvatar from '../components/RobloxAvatar'
+import { supabase } from '../lib/supabase'
 
-export default function MembersPage() {
-  const [players, setPlayers] = useState([])
-  const [teams, setTeams] = useState([])
-  const [selectedTeam, setSelectedTeam] = useState('All')
-  const [loading, setLoading] = useState(true)
+export default function Home() {
+  const [photos, setPhotos] = useState([])
+  const [currentPhoto, setCurrentPhoto] = useState(0)
+
+  useEffect(() => { fetchPhotos() }, [])
 
   useEffect(() => {
-    fetchPlayers()
-  }, [])
+    if (photos.length === 0) return
+    const timer = setInterval(() => {
+      setCurrentPhoto(prev => (prev + 1) % photos.length)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [photos])
 
-  const fetchPlayers = async () => {
+  const fetchPhotos = async () => {
     const { data } = await supabase
-      .from('players')
+      .from('home_photos')
       .select('*')
-      .order('name')
-    if (data) {
-      setPlayers(data)
-      const uniqueTeams = [...new Set(data.map(p => p.team).filter(Boolean))]
-      setTeams(uniqueTeams)
-    }
-    setLoading(false)
+      .order('display_order')
+    if (data) setPhotos(data)
   }
 
-  const filtered = selectedTeam === 'All'
-    ? players
-    : players.filter(p => p.team === selectedTeam)
-
   return (
-    <main style={{ minHeight: '100vh', padding: '2rem' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#CC0000',
-            letterSpacing: '2px'
-          }}>
-            MEMBERS
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
-            {players.length} players across {teams.length} teams
-          </p>
-        </div>
-
-        <div style={{
-          display: 'flex',
-          gap: '0.75rem',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          marginBottom: '2.5rem'
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      textAlign: 'center'
+    }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{
+          fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+          fontWeight: '900',
+          color: '#CC0000',
+          textShadow: '0 0 40px rgba(204,0,0,0.4)',
+          letterSpacing: '3px',
+          lineHeight: 1.1
         }}>
-          {['All', ...teams].map(team => (
-            <button
-              key={team}
-              onClick={() => setSelectedTeam(team)}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '50px',
-                border: '1px solid rgba(204,0,0,0.4)',
-                background: selectedTeam === team ? '#CC0000' : 'rgba(204,0,0,0.08)',
-                color: selectedTeam === team ? '#000' : '#CC0000',
-                fontWeight: '600',
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              {team}
-            </button>
-          ))}
-        </div>
+          FUSION LEAGUE
+        </h1>
+        <p style={{
+          fontSize: '1.1rem',
+          color: 'rgba(255,255,255,0.6)',
+          marginTop: '0.75rem',
+          letterSpacing: '4px',
+          textTransform: 'uppercase'
+        }}>
+          Official League Website
+        </p>
+      </div>
 
-        {loading ? (
-          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
-            Loading players...
-          </p>
-        ) : filtered.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
-            No players found. Add some from the Owner Dashboard!
-          </p>
-        ) : (
+      {photos.length > 0 ? (
+        <div style={{
+          width: '100%',
+          maxWidth: '800px',
+          position: 'relative',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          border: '2px solid rgba(204,0,0,0.3)',
+          boxShadow: '0 0 40px rgba(204,0,0,0.15)',
+          aspectRatio: '16/9',
+          background: 'rgba(0,0,0,0.4)'
+        }}>
+          <img
+            src={photos[currentPhoto]?.photo_url}
+            alt="League highlight"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '1.5rem'
+            position: 'absolute',
+            bottom: '12px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '8px'
           }}>
-            {filtered.map(player => (
-              <Link key={player.id} href={`/players/${player.id}`}>
-                <div
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(204,0,0,0.2)',
-                    borderRadius: '16px',
-                    padding: '1.5rem 1rem',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    backdropFilter: 'blur(8px)'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.border = '1px solid rgba(255,215,0,0.6)'
-                    e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.background = 'rgba(204,0,0,0.08)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.border = '1px solid rgba(204,0,0,0.2)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                  }}
-                >
-                  <div style={{
-                    margin: '0 auto 1rem',
-                    border: '2px solid rgba(204,0,0,0.4)',
-                    borderRadius: '50%',
-                    width: '80px',
-                    height: '80px',
-                    overflow: 'hidden'
-                  }}>
-                    <RobloxAvatar
-                      robloxId={player.roblox_id}
-                      fallbackUrl={player.photo_url}
-                      name={player.name}
-                      size={80}
-                    />
-                  </div>
-
-                  <h3 style={{
-                    fontSize: '15px',
-                    fontWeight: '700',
-                    color: 'white',
-                    marginBottom: '4px'
-                  }}>
-                    {player.name}
-                  </h3>
-
-                  {player.team && (
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#CC0000',
-                      background: 'rgba(204,0,0,0.1)',
-                      padding: '2px 10px',
-                      borderRadius: '20px',
-                      display: 'inline-block',
-                      marginBottom: '4px'
-                    }}>
-                      {player.team}
-                    </span>
-                  )}
-
-                  {player.positions && (
-                    <p style={{
-                      fontSize: '12px',
-                      color: 'rgba(255,255,255,0.5)',
-                      marginTop: '4px'
-                    }}>
-                      {player.positions}
-                    </p>
-                  )}
-                </div>
-              </Link>
+            {photos.map((_, i) => (
+              <div
+                key={i}
+                onClick={() => setCurrentPhoto(i)}
+                style={{
+                  width: i === currentPhoto ? '24px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: i === currentPhoto ? '#CC0000' : 'rgba(255,255,255,0.4)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              />
             ))}
           </div>
-        )}
+        </div>
+      ) : (
+        <div style={{
+          width: '100%',
+          maxWidth: '800px',
+          aspectRatio: '16/9',
+          borderRadius: '16px',
+          border: '2px dashed rgba(204,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'rgba(255,255,255,0.3)',
+          fontSize: '14px'
+        }}>
+          Photos will appear here once added from the Owner Dashboard
+        </div>
+      )}
+
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        marginTop: '2.5rem',
+        flexWrap: 'wrap',
+        justifyContent: 'center'
+      }}>
+        {[
+          { href: '/members', label: '👥 Members' },
+          { href: '/feed', label: '📡 Game Feed' },
+          { href: '/transactions', label: '📋 Transactions' }
+        ].map(btn => (
+          <a
+            key={btn.href}
+            href={btn.href}
+            style={{
+              padding: '12px 28px',
+              borderRadius: '50px',
+              border: '1px solid rgba(204,0,0,0.4)',
+              background: 'rgba(204,0,0,0.08)',
+              color: '#CC0000',
+              fontSize: '14px',
+              fontWeight: '600',
+              letterSpacing: '1px',
+              cursor: 'pointer'
+            }}
+          >
+            {btn.label}
+          </a>
+        ))}
       </div>
     </main>
   )
