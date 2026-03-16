@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import RobloxAvatar from '../../components/RobloxAvatar'
 
 export default function PlayerPage() {
   const { id } = useParams()
@@ -41,9 +42,6 @@ export default function PlayerPage() {
     setPhotos(ph.data || [])
     setLoading(false)
   }
-
-  const getRobloxAvatar = (robloxId) =>
-    `https://www.roblox.com/headshot-thumbnail/image?userId=${robloxId}&width=420&height=420&format=png`
 
   const StatRow = ({ label, value }) => (
     <div style={{
@@ -108,28 +106,14 @@ export default function PlayerPage() {
           borderRadius: '50%',
           overflow: 'hidden',
           border: '3px solid rgba(255,215,0,0.5)',
-          flexShrink: 0,
-          background: 'rgba(255,255,255,0.1)'
+          flexShrink: 0
         }}>
-          {player.roblox_id ? (
-            <img
-              src={getRobloxAvatar(player.roblox_id)}
-              alt={player.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : player.photo_url ? (
-            <img
-              src={player.photo_url}
-              alt={player.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : (
-            <div style={{
-              width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center',
-              justifyContent: 'center', fontSize: '48px'
-            }}>🏈</div>
-          )}
+          <RobloxAvatar
+            robloxId={player.roblox_id}
+            fallbackUrl={player.photo_url}
+            name={player.name}
+            size={140}
+          />
         </div>
 
         {/* Info */}
@@ -178,11 +162,16 @@ export default function PlayerPage() {
                 🎵 Player's Song
               </p>
               <iframe
-                src={player.song_url}
+                src={player.song_url
+                  .replace('open.spotify.com/track', 'open.spotify.com/embed/track')
+                  .replace('open.spotify.com/playlist', 'open.spotify.com/embed/playlist')
+                  .replace('/embed/embed/', '/embed/')
+                }
                 width="300"
                 height="80"
                 frameBorder="0"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
                 style={{ borderRadius: '8px' }}
               />
             </div>
@@ -191,11 +180,7 @@ export default function PlayerPage() {
       </div>
 
       {/* Season toggle */}
-      <div style={{
-        display: 'flex',
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
         {['current', 'career'].map(s => (
           <button
             key={s}
