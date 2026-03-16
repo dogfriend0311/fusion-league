@@ -33,7 +33,7 @@ export default function StatsManager() {
       .select('*')
       .eq('player_id', selectedPlayer)
       .eq('season', season)
-      .single()
+      .maybeSingle()
     setStats(data || {})
   }
 

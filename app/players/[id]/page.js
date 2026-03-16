@@ -22,12 +22,12 @@ export default function PlayerPage() {
 
   const fetchAll = async () => {
     const [p, ps, rs, rec, def, k, aw, ph] = await Promise.all([
-      supabase.from('players').select('*').eq('id', id).single(),
-      supabase.from('passing_stats').select('*').eq('player_id', id).eq('season', season).single(),
-      supabase.from('rushing_stats').select('*').eq('player_id', id).eq('season', season).single(),
-      supabase.from('receiving_stats').select('*').eq('player_id', id).eq('season', season).single(),
-      supabase.from('defensive_stats').select('*').eq('player_id', id).eq('season', season).single(),
-      supabase.from('kicking_stats').select('*').eq('player_id', id).eq('season', season).single(),
+      supabase.from('players').select('*').eq('id', id).maybeSingle(),
+      supabase.from('passing_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
+      supabase.from('rushing_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
+      supabase.from('receiving_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
+      supabase.from('defensive_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
+      supabase.from('kicking_stats').select('*').eq('player_id', id).eq('season', season).maybeSingle(),
       supabase.from('awards').select('*').eq('player_id', id).order('created_at', { ascending: false }),
       supabase.from('performance_photos').select('*').eq('player_id', id).order('created_at', { ascending: false })
     ])
